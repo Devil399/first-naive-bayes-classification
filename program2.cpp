@@ -17,8 +17,8 @@ char 	testImages[] = "testimages.txt",
 		trainingLabels[] = "traininglabels.txt";
 		
 
-int arr[10][28][28][2] = {0}, answers[1009], results[1009], trainResults[5009], countLabels[10] = {0};
-double likelihood[10][28][28][2];
+int arr[10][28][28][3] = {0}, answers[1009], results[1009], trainResults[5009], countLabels[10] = {0};
+double likelihood[10][28][28][3];
 ofstream fout;
 ifstream fin;
 
@@ -40,7 +40,8 @@ void getData(){
 			fin.getline(line, 30);
 			for(int k=0; k<28; k++){
 				if(line[k] == ' ') arr[ trainResults[i] ][j][k][0]++;
-				else arr[ trainResults[i] ][j][k][1]++;
+				else if(line[k] == '#') arr[ trainResults[i] ][j][k][1]++;
+				else arr[ trainResults[i] ][j][k][2]++;
 			}
 		}
 	}
@@ -59,6 +60,9 @@ void train(){
 
 				a = (double)( arr[c][i][j][1] + laplace);
 				likelihood[c][i][j][1] = a/b;		//no of times pixel(i,j) has value=1 for class c / no of occurences of class c
+
+				a = (double)( arr[c][i][j][2] + laplace);
+				likelihood[c][i][j][2] = a/b;		//no of times pixel(i,j) has value=2 for class c / no of occurences of class c
 			}
 		}
 	}
@@ -90,6 +94,8 @@ void testing(){
 				for(int j=0; j<28; j++){
 					if(line[i][j] == ' ') 
 						val = val * likelihood[cls][i][j][0];
+					else if(line[i][j] == '+')
+						val = val * likelihood[cls][i][j][2];
 					else 
 						val = val * likelihood[cls][i][j][1];
 				}
